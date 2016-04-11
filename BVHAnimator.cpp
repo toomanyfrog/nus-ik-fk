@@ -509,8 +509,6 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 
 	while ( iterations > 0 ) {
 		
-		std::cout << "del: " << del_x << ", " << del_y << ", " << del_z << endl;
-
 		vector<float> darx = computeDelta(delta, LArx, frame_no, scale);
 		float dx_darx = darx[0] / delta;
 		float dy_darx = darx[1] / delta;
@@ -537,23 +535,6 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 		glm::mat4x3 transpose = glm::transpose(jacobian);
 		glm::vec3 de = glm::vec3(del_x, del_y, del_z);
 
-
-		// Pseudo-inverse method
-		/*
-		glm::mat4x4 square = jacobian * transpose;
-
-		glm::mat4x4 inv_sq = glm::inverse(square);
-
-		cout << inv_sq[0][0] << " " << inv_sq[0][1] << " " << inv_sq[0][2] << endl;
-		cout << inv_sq[1][0] << " " << inv_sq[1][1] << " " << inv_sq[1][2] << endl;
-		cout << inv_sq[2][0] << " " << inv_sq[2][1] << " " << inv_sq[2][2] << endl;
-		cout << inv_sq[3][0] << " " << inv_sq[3][1] << " " << inv_sq[3][2] << endl;
-
-		glm::mat4x3 pseudo_inv = transpose * inv_sq;
-		glm::vec4 d_theta = de * pseudo_inv;
-
-		*/
-
 		// Damped least squares method
 		glm::mat3x3 jjt = transpose * jacobian;
 		glm::mat3x3 inversed = jjt + powf(damp_lambda, 2.) * glm::mat3x3();
@@ -561,16 +542,13 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 		glm::mat4x3 dls = inversed * transpose;
 
 		glm::vec4 d_theta = de * dls;
-
+		
 		*LArx = *LArx + d_theta[0];
 		*LAry = *LAry + d_theta[1];
 		*LArz = *LArz + d_theta[2];
 		*LFAry = *LFAry + d_theta[3];
 
 		_bvh->quaternionMoveTo(frame_no, scale);
-		cout << "final larx: " << *LArx << endl;
-		cout << "final lary: " << *LAry << endl;
-		cout << "final larz: " << *LArz << endl;
 
 		del_x = x - lhand->transform.translation.x;	// vector from hand to target
 		del_y = y - lhand->transform.translation.y;
