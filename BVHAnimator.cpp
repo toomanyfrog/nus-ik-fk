@@ -501,7 +501,7 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
     // -------------------------------------------------------
 
 	float delta = 0.0001;					// for approximating the derivative
-	int iterations = 0;					// number of times to ... actually idk
+	int iterations = 20;					// number of times to ... actually idk
 	float damp_lambda = 0.009;				// damping constant chosen at random and seems to work
 	float del_x = x - lhand->transform.translation.x;	// vector from hand to target
 	float del_y = y - lhand->transform.translation.y;	
@@ -563,9 +563,9 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 		glm::vec4 d_theta = de * dls;
 
 		*LArx = *LArx + d_theta[0];
-		*LAry = *LArx + d_theta[1];
-		*LArz = *LArx + d_theta[2];
-		*LFAry = *LArx + d_theta[3];
+		*LAry = *LAry + d_theta[1];
+		*LArz = *LArz + d_theta[2];
+		*LFAry = *LFAry + d_theta[3];
 
 		_bvh->quaternionMoveTo(frame_no, scale);
 		cout << "final larx: " << *LArx << endl;
