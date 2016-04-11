@@ -511,26 +511,42 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 	float del_z = z - lhand->transform.translation.z;
 
 	while ( iterations > 0 ) {
-		
-		vector<float> darx = computeDelta(delta, LArx, frame_no, scale);
-		float dx_darx = darx[0] / delta;
-		float dy_darx = darx[1] / delta;
-		float dz_darx = darx[2] / delta;
 
-		vector<float> dary = computeDelta(delta, LAry, frame_no, scale);
-		float dx_dary = dary[0] / delta;
-		float dy_dary = dary[1] / delta;
-		float dz_dary = dary[2] / delta;
+		_bvh->quaternionMoveTo(frame_no, scale);
+		// Get current end effector position.
+		glm::vec3 old_pos = lhand->transform.translation;
 
-		vector<float> darz = computeDelta(delta, LArz, frame_no, scale);
-		float dx_darz = darz[0] / delta;
-		float dy_darz = darz[1] / delta;
-		float dz_darz = darz[2] / delta;
+		*LArx = *LArx + delta;
+		_bvh->quaternionMoveTo(frame_no, scale); 
+		glm::vec3 new_pos = lhand->transform.translation;
+		float dx_darx = (new_pos.x - old_pos.x) / delta;
+		float dy_darx = (new_pos.y - old_pos.y) / delta;
+		float dz_darx = (new_pos.z - old_pos.z) / delta;
+		*LArx = *LArx - delta;
 
-		vector<float> dfary = computeDelta(delta, LFAry, frame_no, scale);
-		float dx_dfary = dfary[0] / delta;
-		float dy_dfary = dfary[1] / delta;
-		float dz_dfary = dfary[2] / delta;
+		*LAry = *LAry + delta;
+		_bvh->quaternionMoveTo(frame_no, scale);
+		new_pos = lhand->transform.translation;
+		float dx_dary = (new_pos.x - old_pos.x) / delta;
+		float dy_dary = (new_pos.y - old_pos.y) / delta;
+		float dz_dary = (new_pos.z - old_pos.z) / delta;
+		*LAry = *LAry - delta;
+
+		*LArz = *LArz + delta;
+		_bvh->quaternionMoveTo(frame_no, scale);
+		new_pos = lhand->transform.translation;
+		float dx_darz = (new_pos.x - old_pos.x) / delta;
+		float dy_darz = (new_pos.y - old_pos.y) / delta;
+		float dz_darz = (new_pos.z - old_pos.z) / delta;
+		*LArz = *LArz - delta;
+
+		*LFAry = *LFAry + delta;
+		_bvh->quaternionMoveTo(frame_no, scale);
+		new_pos = lhand->transform.translation;
+		float dx_dfary = (new_pos.x - old_pos.x) / delta;
+		float dy_dfary = (new_pos.y - old_pos.y) / delta;
+		float dz_dfary = (new_pos.z - old_pos.z) / delta;
+		*LFAry = *LFAry - delta;
 
 		glm::mat3x4 jacobian = glm::mat3x4(dx_darx, dx_dary, dx_darz, dx_dfary,
 			dy_darx, dy_dary, dy_darz, dy_dfary,
@@ -567,26 +583,4 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
     clock_t end_time = clock();
     float elapsed = (end_time - start_time) / (float)CLOCKS_PER_SEC;
     cout << "Solving done in " << elapsed * 1000 << " ms." << endl;
-}
-
-vector<float> BVHAnimator::computeDelta(float delta, float *joint_coord, int frame_no, float scale) {
-
-	float old_x = lhand->transform.translation.x;
-	float old_y = lhand->transform.translation.y;
-	float old_z = lhand->transform.translation.z;
-
-	*joint_coord = *joint_coord + delta;
-	_bvh->quaternionMoveTo(frame_no, scale);
-	glm::vec3 new_pos = lhand->transform.translation;
-	float d_x = new_pos.x - old_x;
-	float d_y = new_pos.y - old_y;
-	float d_z = new_pos.z - old_z;
-
-	vector<float> diff = vector<float>();
-	diff.push_back(d_x);
-	diff.push_back(d_y);
-	diff.push_back(d_z);
-
-	*joint_coord = *joint_coord - delta;
-	return diff;
 }

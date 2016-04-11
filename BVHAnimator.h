@@ -55,9 +55,6 @@ public:
 	 * Joints: LeftArm 3DOF, LeftForeArm 1DOF
 	 */
 	void solveLeftArm(int frame_no, float scale, float x, float y, float z);
-
-	std::vector<float> computeDelta(float delta, float* joint_coord, int frame_no, float scale);
-
 };
 
 #endif
