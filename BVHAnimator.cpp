@@ -507,7 +507,9 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 	float del_y = y - lhand->transform.translation.y;	
 	float del_z = z - lhand->transform.translation.z;
 
-	while ( iterations > 0 ) {
+	float error = sqrt(powf(del_x, 2) + powf(del_y, 2) + powf(del_z, 2));
+
+	while ( error > 0.15 && iterations > 0 ) {
 		
 		std::cout << "del: " << del_x << ", " << del_y << ", " << del_z << endl;
 
