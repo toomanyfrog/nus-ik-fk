@@ -500,8 +500,11 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
     // Put your code below
     // -------------------------------------------------------
 
+
+	// REFERENCE: https://www.math.ucsd.edu/~sbuss/ResearchWeb/ikmethods/iksurvey.pdf
+
 	float delta = 0.0001;					// for approximating the derivative
-	int iterations = 20;					// number of times to ... actually idk
+	int iterations = 20;					// number of times to iterate
 	float damp_lambda = 0.009;				// damping constant chosen at random and seems to work
 	float del_x = x - lhand->transform.translation.x;	// vector from hand to target
 	float del_y = y - lhand->transform.translation.y;	
@@ -557,11 +560,6 @@ void BVHAnimator::solveLeftArm(int frame_no, float scale, float x, float y, floa
 		iterations--;
 
 	}
-
-	//glm::mat3x4 jacob = glm::mat3x4(dxDlarx, dxDlary, dxDlarz, dxDlfary,
-	//	dyDlarx, dyDlary, dyDlarz, dyDlfary,
-	//	dzDlarx, dzDlary, dzDlarz, dzDlfary);
-    
 	
 	// ----------------------------------------------------------
     // Do not touch
@@ -590,6 +588,5 @@ vector<float> BVHAnimator::computeDelta(float delta, float *joint_coord, int fra
 	diff.push_back(d_z);
 
 	*joint_coord = *joint_coord - delta;
-	//_bvh->quaternionMoveTo(frame_no, scale);
 	return diff;
 }
